@@ -1,0 +1,19 @@
+query GetNftsByType($nftType: String!, $first: Int, $after: String) {
+	objects(first: $first, after: $after, filter: { type: $nftType }) {
+		pageInfo {
+			hasNextPage
+			endCursor
+		}
+		nodes {
+			address
+			asMoveObject {
+				contents {
+					display {
+						output
+					}
+					json
+				}
+			}
+		}
+	}
+}
