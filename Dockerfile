@@ -1,5 +1,5 @@
 # Use official bun image for production
-FROM oven/bun:1.1.13 as base
+FROM oven/bun:1.3.1 as base
 
 WORKDIR /app
 
