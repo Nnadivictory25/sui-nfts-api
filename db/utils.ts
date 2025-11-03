@@ -11,7 +11,14 @@ export async function getNftsByType(type: string) {
 }
 
 export async function getNftById(id: string) {
-    return await db.select().from(nfts).where(eq(nfts.id, id))
+    return await db.select({
+        id: nfts.id,
+        name: nfts.name,
+        type: nfts.type,
+        rank: nfts.rank,
+        imageUrl: nfts.imageUrl,
+        attributes: nfts.attributes
+    }).from(nfts).where(eq(nfts.id, id))
 }
 
 export async function storeCollections(newCollections: NewCollection[]) {
