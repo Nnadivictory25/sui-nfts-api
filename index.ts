@@ -47,8 +47,6 @@ Bun.serve({
                     return new Response("NFT not found", { status: 404 });
                 }
 
-                console.log("✅ NFT found");
-
                 return Response.json(nft, {
                     headers: {
                         "Cache-Control": "public, max-age=31536000, immutable"
