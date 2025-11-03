@@ -49,7 +49,11 @@ Bun.serve({
 
                 console.log("✅ NFT found");
 
-                return Response.json(nft);
+                return Response.json(nft, {
+                    headers: {
+                        "Cache-Control": "public, max-age=31536000, immutable"
+                    }
+                });
             }
         }
     }
