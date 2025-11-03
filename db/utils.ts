@@ -33,6 +33,11 @@ export async function getCollectionByType(type: string) {
     return await db.select().from(collections).where(eq(collections.type, type));
 }
 
+export async function deleteCollectionByType(type: string) {
+    await db.delete(collections).where(eq(collections.type, type));
+    await db.delete(nfts).where(eq(nfts.type, type));
+}
+
 export async function updateRarityScoreInDB(data: RarityScore[]) {
     const st = performance.now();
     await db.transaction(async (tx) => {
