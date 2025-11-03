@@ -3,9 +3,10 @@ import { GRAPHQL_ENDPOINT } from "./constants";
 import { getSdk } from "./generated/graphql";
 import { migrateDatabase } from "./db/migrate";
 import { indexNfts } from "./poller";
-import { formatRawNft } from "./utils";
+import { getNftById, getNftsByType } from "./db/utils";
 
 const isDev = process.env.NODE_ENV === "development";
+const port = process.env.PORT || 3232;
 
 if (!isDev) {
     migrateDatabase();
@@ -30,3 +31,20 @@ indexNfts();
 
 
 // getNfts();
+
+
+Bun.serve({
+    port,
+    development: isDev,
+    routes: {
+        "/nfts/:id": {
+            GET: async (req) => {
+                const { id } = req.params;
+                const [nft] = await getNftById(id);
+                return Response.json(nft);
+            }
+        }
+    }
+})
+
+console.log(`Server is running on port ${port}`);

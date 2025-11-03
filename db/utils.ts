@@ -10,6 +10,10 @@ export async function getNftsByType(type: string) {
     return await db.select().from(nfts).where(eq(nfts.type, type));
 }
 
+export async function getNftById(id: string) {
+    return await db.select().from(nfts).where(eq(nfts.id, id))
+}
+
 export async function storeCollections(newCollections: NewCollection[]) {
     await db.insert(collections).values(newCollections).onConflictDoNothing();
 }
