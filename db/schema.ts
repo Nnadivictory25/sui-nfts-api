@@ -24,7 +24,7 @@ export const nfts = sqliteTable('nfts', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     type: text('type').notNull(),
-    rarity: integer('rarity'),
+    rank: integer('rank'),
     imageUrl: text('image_url').notNull(),
     attributes: jsonArray<attribute>('attributes').notNull(),
     ...timestamps,

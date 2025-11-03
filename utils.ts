@@ -118,106 +118,77 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     };
 }
 
+const safeInc = (map: Map<string, number>, key: string) =>
+    map.set(key, (map.get(key) ?? 0) + 1);
+
+/** Main entry point */
 export async function updateRarityScores(nftType: string) {
-    console.log('📊 Starting rarity score calculation...');
+    console.log('Starting rarity score calculation...');
 
-    try {
-        const allNfts = await getNftsByType(nftType);
-        const totalNfts = allNfts.length;
+    const allNfts = await getNftsByType(nftType);
+    const total = allNfts.length;
 
-        // Debug: Check if NFTs have attributes
-        const nftsWithAttributes = allNfts.filter(nft => nft.attributes && nft.attributes.length > 0);
-        console.log(`📊 Found ${totalNfts} total NFTs, ${nftsWithAttributes.length} have attributes`);
+    // -----------------------------------------------------------------
+    // 1. Build trait counters (skip NFTs without any attributes)
+    // -----------------------------------------------------------------
+    const traitCounts = new Map<string, Map<string, number>>(); // trait → value → count
+    const nftScores = new Map<string, { score: number; attrCount: number }>();
 
-        if (nftsWithAttributes.length === 0) {
-            console.warn('⚠️ No NFTs found with attributes. Cannot calculate rarity scores.');
-            return;
+    for (const nft of allNfts) {
+        if (!nft.attributes?.length) {
+            nftScores.set(nft.id, { score: 0.001, attrCount: 0 });
+            continue;
         }
 
-        const traitCounts = new Map<string, Map<string, number>>();
+        let score = 0;
+        let attrCount = 0;
 
-        // 1. Count trait occurrences
-        for (const nft of allNfts) {
-            if (!nft.attributes || nft.attributes.length === 0) {
-                console.warn(`[RARITY] NFT ${nft.id} has no attributes`);
-                continue;
-            }
+        for (const attr of nft.attributes) {
+            if (!attr?.key || !attr?.value) continue;
 
-            for (const attr of nft.attributes) {
-                if (!attr || !attr.key || !attr.value) {
-                    console.warn(`[RARITY] Invalid attribute for NFT ${nft.id}:`, attr);
-                    continue;
-                }
+            const type = attr.key;
+            const value = attr.value;
 
-                const traitType = attr.key;
-                const traitValue = attr.value;
+            // initialise nested map on first encounter
+            if (!traitCounts.has(type)) traitCounts.set(type, new Map());
 
-                if (!traitCounts.has(traitType)) {
-                    traitCounts.set(traitType, new Map<string, number>());
-                }
-                const values = traitCounts.get(traitType)!;
-                values.set(traitValue, (values.get(traitValue) || 0) + 1);
-            }
+            const valueMap = traitCounts.get(type)!;
+            safeInc(valueMap, value);
+
+            // temporary score (will be finalised after the loop)
+            const count = valueMap.get(value)!;
+            score += 1 / (count / total);
+            attrCount++;
         }
 
-        // 2. Calculate rarity scores for each NFT
-        const rarityScoresWithFloat = allNfts.map(nft => {
-            let totalRarityScore = 0;
-            let attributeCount = 0;
-
-            if (nft.attributes && nft.attributes.length > 0) {
-                for (const attr of nft.attributes) {
-                    if (!attr || !attr.key || !attr.value) continue;
-
-                    const traitType = attr.key;
-                    const traitValue = attr.value;
-                    const count = traitCounts.get(traitType)?.get(traitValue);
-
-                    if (count) {
-                        const traitRarityScore = 1 / (count / totalNfts);
-                        totalRarityScore += traitRarityScore;
-                        attributeCount++;
-                    }
-                }
-            }
-
-            // If NFT has no valid attributes, give it a low rarity score
-            if (attributeCount === 0) {
-                totalRarityScore = 0.001; // Very low score for NFTs without attributes
-            }
-
-            return {
-                id: nft.id,
-                rarityScore: totalRarityScore,
-                attributeCount
-            };
-        });
-
-        // 3. Sort by the calculated float score to determine the rank
-        rarityScoresWithFloat.sort((a, b) => b.rarityScore - a.rarityScore);
-
-        // 4. Create the final rarity scores using the rank
-        const rarityScores: RarityScore[] = rarityScoresWithFloat.map((score, index) => ({
-            id: score.id,
-            score: index + 1,
-        }));
-
-        // 5. Store the rarity scores in the database using the existing function
-        console.log('💾 Updating rarity scores in database...');
-        await updateRarityScoreInDB(rarityScores);
-        console.log(`✅ Rarity scores updated in database for ${rarityScores.length} NFTs`);
-
-        // 6. Display the results
-        console.log("\n🏆 NFT Rarity Ranking (Top 10):");
-        rarityScores.slice(0, 5).forEach((score) => {
-            const nftData = rarityScoresWithFloat.find(r => r.id === score.id);
-            console.log(
-                `Rank ${score.score}: ${score.id} (${nftData?.attributeCount || 0} attributes, score: ${nftData?.rarityScore.toFixed(2) || 'N/A'})`
-            );
-        });
-    } catch (error) {
-        console.error('❌ Error updating rarity scores:', error);
+        nftScores.set(nft.id, { score: attrCount ? score : 0.001, attrCount });
     }
+
+    if (!traitCounts.size) {
+        console.warn('No NFTs with attributes – nothing to rank.');
+        return;
+    }
+
+    // -----------------------------------------------------------------
+    // 2. Rank by float score
+    // -----------------------------------------------------------------
+    const ranked = Array.from(nftScores.entries())
+        .sort(([, a], [, b]) => b.score - a.score)
+        .map(([id], idx) => ({ id, score: idx + 1 }));
+
+    // -----------------------------------------------------------------
+    // 3. Persist + log top 5
+    // -----------------------------------------------------------------
+    await updateRarityScoreInDB(ranked);
+    console.log(`Rarity scores saved for ${ranked.length} NFTs`);
+
+    console.log('\nTop 5:');
+    ranked.slice(0, 5).forEach((r, i) => {
+        const { score: floatScore, attrCount } = nftScores.get(r.id)!;
+        console.log(
+            `Rank ${r.score}: ${r.id} (${attrCount} attrs, raw ${floatScore.toFixed(2)})`
+        );
+    });
 }
 
 

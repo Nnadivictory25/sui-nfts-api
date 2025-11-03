@@ -1,0 +1,1 @@
+ALTER TABLE `nfts` RENAME COLUMN "rarity" TO "rank";

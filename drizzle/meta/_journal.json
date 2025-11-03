@@ -15,6 +15,13 @@
       "when": 1762127841553,
       "tag": "0001_yielding_lifeguard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1762142961119,
+      "tag": "0002_unknown_shinko_yamashiro",
+      "breakpoints": true
     }
   ]
 }

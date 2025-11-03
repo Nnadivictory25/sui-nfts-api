@@ -30,7 +30,7 @@ export async function updateRarityScoreInDB(data: RarityScore[]) {
     const st = performance.now();
     await db.transaction(async (tx) => {
         for (const { id: nftId, score } of data) {
-            await tx.update(nfts).set({ rarity: score }).where(eq(nfts.id, nftId))
+            await tx.update(nfts).set({ rank: score }).where(eq(nfts.id, nftId))
         }
     });
     const et = performance.now();
