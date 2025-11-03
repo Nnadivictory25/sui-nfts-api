@@ -57,7 +57,7 @@ Bun.serve({
             }
         },
 
-        "nfts/:type": {
+        "/nfts/:type": {
             DELETE: async (req) => {
                 const { type } = req.params;
                 const headers = req.headers;
