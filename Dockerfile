@@ -12,7 +12,5 @@ COPY . .
 
 EXPOSE 3000
 
-RUN echo '{"indexed": [], "to_index": [], "currently_indexing": "", "last_cursor": ""}' > data/index-data.json
-
 # Default command: run the app
 CMD ["bun", "run", "index.ts"]
