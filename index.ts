@@ -41,6 +41,11 @@ Bun.serve({
             GET: async (req) => {
                 const { id } = req.params;
                 const [nft] = await getNftById(id);
+
+                if (!nft) {
+                    return new Response("NFT not found", { status: 404 });
+                }
+
                 return Response.json(nft);
             }
         }
