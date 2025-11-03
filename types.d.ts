@@ -4,7 +4,6 @@ type attribute = {
 }
 
 type indexData = {
-    indexed: string[];
     to_index: string[];
     currently_indexing: string;
     last_cursor: string | null;

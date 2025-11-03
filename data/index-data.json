@@ -1,5 +1,4 @@
 {
-  "indexed": [],
   "to_index": [
     "0x9f48e186b1527bd164960a03f392c14669acfd1ef560fb6138ad0918e6e712a3::doonies::NFT",
     "0xb908f3c6fea6865d32e2048c520cdfe3b5c5bbcebb658117c41bad70f52b7ccc::popkins_nft::Popkins",
@@ -7,7 +6,8 @@
     "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin",
     "0xe0fa7b75a3dc8137b38bceb0c0c21c10e0f57c408fe9068694f58fd21e071925::pawtato_heroes::HERO",
     "0x71ef69d02e77dff830c7de41db1452928c8ecd9040a541eef6729f139df83ffd::enforcer_machin_prototypes_01::Emp",
-    "0x42482d397dd0f1dc8dab9fdf8db9b81a6d4ce9e32597ed522cde660a8773b1a9::pawtato_tools::TOOL"
+    "0x42482d397dd0f1dc8dab9fdf8db9b81a6d4ce9e32597ed522cde660a8773b1a9::pawtato_tools::TOOL",
+    "0x7c02d0be6b6dfaeaf8aeebdf0967cb6f0f5c187c86e3b054e27c195bea30c9b5::puggies::Puggies"
   ],
   "currently_indexing": "",
   "last_cursor": null

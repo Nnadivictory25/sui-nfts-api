@@ -2,15 +2,19 @@ import { GraphQLClient } from "graphql-request";
 import { GRAPHQL_ENDPOINT, INDEX_DATA_FILE_PATH } from "./constants";
 import { getSdk } from "./generated/graphql";
 import { formatRawNft, saveCollectionData, updateRarityScores } from "./utils";
-import { storeNfts } from "./db/utils";
+import { storeNfts, getCollections } from "./db/utils";
 
 const gqlClient = new GraphQLClient(GRAPHQL_ENDPOINT);
 const sdk = getSdk(gqlClient);
 
-function cleanupIndexData(indexData: indexData) {
+async function cleanupIndexData(indexData: indexData) {
+    // Get already indexed collections from the database
+    const existingCollections = await getCollections();
+    const indexedTypes = new Set(existingCollections.map(c => c.type));
+
     indexData.to_index = [...new Set(indexData.to_index)]
         .filter(type => type !== indexData.currently_indexing)
-        .filter(type => !indexData.indexed.includes(type));
+        .filter(type => !indexedTypes.has(type));
 }
 
 export async function indexNfts() {
@@ -19,7 +23,7 @@ export async function indexNfts() {
     async function poll() {
         const indexData = await getIndexData();
 
-        cleanupIndexData(indexData);
+        await cleanupIndexData(indexData);
 
         // --- WHEN A COLLECTION IS ACTIVELY BEING INDEXED --- //
         if (indexData.currently_indexing) {
@@ -78,12 +82,13 @@ export async function indexNfts() {
                         totalSupply: totalIndexedThisRun,
                     });
 
-                    // Move from "doing" to "done"
-                    indexData.indexed.push(indexData.currently_indexing);
-                    indexData.currently_indexing = ""; // Clear the current task
+                    // Clear the current task - the collection is now in the database
+                    indexData.currently_indexing = "";
                     indexData.last_cursor = null;
 
-                    console.log(`📊 Collection added to indexed list. Total indexed collections: ${indexData.indexed.length}`);
+                    // Get updated count from database
+                    const totalCollections = await getCollections();
+                    console.log(`📊 Collection added to database. Total indexed collections: ${totalCollections.length}`);
 
                     // No need to save here, as the next block will handle the state update.
                     break; // Exit the while loop
