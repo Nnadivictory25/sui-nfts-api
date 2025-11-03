@@ -19,7 +19,7 @@ export const sdk = getSdk(gqlClient);
 indexNfts();
 
 // async function getNfts() {
-//     const nftType = "0xb07b09b016d28f989b6adda8069096da0c0a0ff6490f6e0866858c023b061bee::mystic_yeti::MysticYeti";
+//     const nftType = "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin";
 //     const { objects } = await sdk.GetNftsByType({
 //         nftType: nftType,
 //         first: 3,

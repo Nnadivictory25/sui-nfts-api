@@ -245,22 +245,29 @@ export async function getRawOnchainNftData(type: string) {
             return null;
         }
 
-        const nftJson = nftNode?.asMoveObject?.contents?.json;
-        if (!nftJson) {
-            console.warn(`[COLLECTION PARSE] Missing json for ${nftNode?.address}`);
+        // Try to get name and description from display output first
+        const displayOutput = nftNode?.asMoveObject?.contents?.display?.output;
+        let name = displayOutput?.name;
+        let description = displayOutput?.description;
+
+        // Fallback to json if display output is not available
+        if (!name || !description) {
+            const nftJson = nftNode?.asMoveObject?.contents?.json;
+            if (nftJson) {
+                name = name || nftJson.name;
+                description = description || nftJson.description;
+            }
+        }
+
+        if (!name && !description) {
+            console.warn(`[COLLECTION PARSE] Missing name and description for ${nftNode?.address}`);
             return null;
         }
 
-        const name = parseNftName(nftJson.name);
-
-        // Try to get description from json first, then fallback to display output
-        let description = nftJson.description;
-        if (!description) {
-            description = nftNode?.asMoveObject?.contents?.display?.output?.description;
-        }
+        const parsedName = parseNftName(name);
 
         return {
-            name,
+            name: parsedName,
             description,
         };
     } catch (error) {

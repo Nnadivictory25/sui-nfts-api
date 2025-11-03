@@ -77,6 +77,7 @@ export async function indexNfts() {
                     console.log(`✅ Rarity scores calculated.`);
 
                     console.log(`🔄 Saving collection to database...`);
+
                     await saveCollectionData({
                         type: indexData.currently_indexing,
                         totalSupply: totalIndexedThisRun,
@@ -117,7 +118,7 @@ export async function indexNfts() {
 
         // Only continue polling if there's work to do
         if (indexData.currently_indexing || indexData.to_index.length > 0) {
-            setTimeout(poll, 100); // Check again almost immediately
+            setTimeout(poll, 5000); // Check again almost immediately
         } else {
             console.log('🎯 All indexing tasks completed. Poller stopped.');
         }
