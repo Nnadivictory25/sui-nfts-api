@@ -4,6 +4,7 @@ import { getSdk } from "./generated/graphql";
 import { migrateDatabase } from "./db/migrate";
 import { indexNfts } from "./poller";
 import { getNftById, getNftsByType } from "./db/utils";
+import { formatRawNft } from "./utils";
 
 const isDev = process.env.NODE_ENV === "development";
 const port = process.env.PORT || 3232;
@@ -18,7 +19,7 @@ export const sdk = getSdk(gqlClient);
 indexNfts();
 
 // async function getNfts() {
-//     const nftType = "0xe0fa7b75a3dc8137b38bceb0c0c21c10e0f57c408fe9068694f58fd21e071925::pawtato_heroes::HERO";
+//     const nftType = "0xb07b09b016d28f989b6adda8069096da0c0a0ff6490f6e0866858c023b061bee::mystic_yeti::MysticYeti";
 //     const { objects } = await sdk.GetNftsByType({
 //         nftType: nftType,
 //         first: 3,

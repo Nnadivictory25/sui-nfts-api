@@ -28,8 +28,14 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
         name = displayOutput.name;
         imageUrl = displayOutput.image_url;
     } else if (nftJson) {
-        name = nftJson.name;
-        imageUrl = nftJson.image_url;
+        // Handle nested collectible structure
+        if (nftJson.collectible) {
+            name = nftJson.collectible.name;
+            imageUrl = nftJson.collectible.image_url;
+        } else {
+            name = nftJson.name;
+            imageUrl = nftJson.image_url;
+        }
     }
 
     if (!name || !imageUrl) {
@@ -45,25 +51,27 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     let attributes: any[] = [];
 
     // Handle different possible attribute structures
-    if (nftJson?.attributes) {
-        if (Array.isArray(nftJson.attributes)) {
+    const attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
+
+    if (attributeSource) {
+        if (Array.isArray(attributeSource)) {
             // Direct array
-            attributes = nftJson.attributes;
-        } else if (nftJson.attributes.contents && Array.isArray(nftJson.attributes.contents)) {
+            attributes = attributeSource;
+        } else if (attributeSource.contents && Array.isArray(attributeSource.contents)) {
             // Nested in contents
-            attributes = nftJson.attributes.contents;
-        } else if (nftJson.attributes.fields && Array.isArray(nftJson.attributes.fields)) {
+            attributes = attributeSource.contents;
+        } else if (attributeSource.fields && Array.isArray(attributeSource.fields)) {
             // Nested in fields
-            attributes = nftJson.attributes.fields;
-        } else if (nftJson.attributes.map && nftJson.attributes.map.contents && Array.isArray(nftJson.attributes.map.contents)) {
+            attributes = attributeSource.fields;
+        } else if (attributeSource.map && attributeSource.map.contents && Array.isArray(attributeSource.map.contents)) {
             // Nested in map.contents
-            attributes = nftJson.attributes.map.contents;
-        } else if (nftJson.attributes.data && typeof nftJson.attributes.data === 'object') {
+            attributes = attributeSource.map.contents;
+        } else if (attributeSource.data && typeof attributeSource.data === 'object') {
             // Handle case where attributes are in a data object (like Prime Machin NFTs)
-            const dataObj = nftJson.attributes.data;
+            const dataObj = attributeSource.data;
             attributes = Object.entries(dataObj).map(([key, value]) => ({ key, value }));
         } else {
-            console.warn(`[NFT PARSE] Unknown attributes structure for ${addr}:`, nftJson.attributes);
+            console.warn(`[NFT PARSE] Unknown attributes structure for ${addr}:`, attributeSource);
         }
     }
 
@@ -244,7 +252,12 @@ export async function getRawOnchainNftData(type: string) {
         }
 
         const name = parseNftName(nftJson.name);
-        const description = nftJson.description;
+
+        // Try to get description from json first, then fallback to display output
+        let description = nftJson.description;
+        if (!description) {
+            description = nftNode?.asMoveObject?.contents?.display?.output?.description;
+        }
 
         return {
             name,
