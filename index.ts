@@ -60,6 +60,17 @@ Bun.serve({
         "nfts/:type": {
             DELETE: async (req) => {
                 const { type } = req.params;
+                const headers = req.headers;
+                const authorization = headers.get("Authorization");
+
+                if (!authorization) {
+                    return new Response("Unauthorized", { status: 401 });
+                }
+
+                if (authorization !== `Bearer ${process.env.API_KEY}`) {
+                    return new Response("Unauthorized", { status: 401 });
+                }
+
                 await deleteCollectionByType(type);
                 return Response.json({ message: "Collection deleted" }, { status: 200 });
             },
