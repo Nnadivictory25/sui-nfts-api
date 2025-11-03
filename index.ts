@@ -19,7 +19,7 @@ export const sdk = getSdk(gqlClient);
 indexNfts();
 
 // async function getNfts() {
-//     const nftType = "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin";
+//     const nftType = "0x7c02d0be6b6dfaeaf8aeebdf0967cb6f0f5c187c86e3b054e27c195bea30c9b5::puggies::Puggies";
 //     const { objects } = await sdk.GetNftsByType({
 //         nftType: nftType,
 //         first: 3,
@@ -46,6 +46,8 @@ Bun.serve({
                 if (!nft) {
                     return new Response("NFT not found", { status: 404 });
                 }
+
+                console.log("✅ NFT found");
 
                 return Response.json(nft);
             }
