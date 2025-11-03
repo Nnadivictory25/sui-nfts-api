@@ -8,7 +8,8 @@
     "start": "bun run index.ts",
     "codegen": "graphql-codegen --config ./codegen.yml",
     "db:gen": "drizzle-kit generate",
-    "db:migrate": "bun run ./db/migrate.ts"
+    "db:migrate": "bun run ./db/migrate.ts",
+    "db:studio": "drizzle-kit studio"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^6.0.1",
