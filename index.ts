@@ -3,7 +3,7 @@ import { GRAPHQL_ENDPOINT } from "./constants";
 import { getSdk } from "./generated/graphql";
 import { migrateDatabase } from "./db/migrate";
 import { indexNfts } from "./poller";
-import { deleteCollectionByType, getNftById, getNftsByType } from "./db/utils";
+import { deleteCollectionByType, getNftById } from "./db/utils";
 import { formatRawNft } from "./utils";
 
 const isDev = process.env.NODE_ENV === "development";
