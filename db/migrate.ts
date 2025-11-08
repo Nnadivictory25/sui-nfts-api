@@ -2,7 +2,6 @@ import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { db } from ".";
 
 const isDev = process.env.NODE_ENV === "development";
-console.log(Bun.main);
 
 export async function migrateDatabase() {
     console.log("migrating database...");
