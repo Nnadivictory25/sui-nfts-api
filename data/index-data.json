@@ -1,8 +1,5 @@
 {
   "to_index": [
-    "0x9f48e186b1527bd164960a03f392c14669acfd1ef560fb6138ad0918e6e712a3::doonies::NFT",
-    "0xb908f3c6fea6865d32e2048c520cdfe3b5c5bbcebb658117c41bad70f52b7ccc::popkins_nft::Popkins",
-    "0xb07b09b016d28f989b6adda8069096da0c0a0ff6490f6e0866858c023b061bee::mystic_yeti::MysticYeti",
     "0x034c162f6b594cb5a1805264dd01ca5d80ce3eca6522e6ee37fd9ebfb9d3ddca::factory::PrimeMachin",
     "0xe0fa7b75a3dc8137b38bceb0c0c21c10e0f57c408fe9068694f58fd21e071925::pawtato_heroes::HERO",
     "0x71ef69d02e77dff830c7de41db1452928c8ecd9040a541eef6729f139df83ffd::enforcer_machin_prototypes_01::Emp",
@@ -12,6 +9,6 @@
     "0xf75f70c333292e9258ba1c6fc44e6bccfa2bd03bbed6d8e6e343f06f3b22a7f4::suimilios::SUIMILIOS_NFT",
     "0x09afb9a1c63a9bbaba650ef0a6b473b9874882cd63aab9570b99274e8f796f00::pawtato::LAND"
   ],
-  "currently_indexing": "",
-  "last_cursor": null
+  "currently_indexing": "0xb07b09b016d28f989b6adda8069096da0c0a0ff6490f6e0866858c023b061bee::mystic_yeti::MysticYeti",
+  "last_cursor": "W8P2DAAAAABtsHsJsBbSj5ibat2oBpCW2gwKD/ZJD24IZoWMAjsGG+4AAAAAAAAAC215c3RpY195ZXRpAAAAAAAAAApNeXN0aWNZZXRpAAAAAAAAAAB1nvb/cssGy8h8FQgYqmKPP7aGArzhzr78RgyNWq1XBw=="
 }

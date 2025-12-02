@@ -20,6 +20,7 @@ const timestamps = {
 }
 
 
+
 export const nfts = sqliteTable('nfts', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
