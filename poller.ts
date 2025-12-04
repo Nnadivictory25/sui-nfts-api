@@ -31,14 +31,32 @@ export async function indexNfts() {
             let totalIndexedThisRun = 0;
             console.log(`▶️ Resuming indexing for: ${indexData.currently_indexing}`);
 
-            while (hasNextPage) {
-                let startTime = performance.now();
+             while (hasNextPage) {
+                 let startTime = performance.now();
 
-                const { objects } = await sdk.GetNftsByType({
-                    nftType: indexData.currently_indexing,
-                    first: 50,
-                    after: indexData.last_cursor ?? undefined,
-                });
+                 let objects;
+                 try {
+                     const result = await sdk.GetNftsByType({
+                         nftType: indexData.currently_indexing,
+                         first: 50,
+                         after: indexData.last_cursor ?? undefined,
+                     });
+                     objects = result.objects;
+                 } catch (error: any) {
+                     if (error?.message?.includes('Request is outside consistent range')) {
+                         console.log('⚠️ Cursor is invalid, resetting and starting from beginning...');
+                         indexData.last_cursor = null;
+                         await storeIndexData(indexData);
+                         const result = await sdk.GetNftsByType({
+                             nftType: indexData.currently_indexing,
+                             first: 50,
+                             after: undefined,
+                         });
+                         objects = result.objects;
+                     } else {
+                         throw error;
+                     }
+                 }
 
                 if (!objects?.nodes) {
                     console.error("❌ No objects found for type", indexData.currently_indexing);
