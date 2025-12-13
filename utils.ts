@@ -300,3 +300,18 @@ export async function saveCollectionData({ type, totalSupply }: { type: string, 
         console.error(`[COLLECTION PARSE] Error saving collection to DB:`, error);
     }
 }
+
+// Index endpoint utilities
+export function validateNftType(nftType: string): { valid: boolean; error?: string } {
+    if (!nftType || typeof nftType !== 'string') {
+        return { valid: false, error: "Missing or invalid nftType parameter" };
+    }
+
+    if (!nftType.includes('::')) {
+        return { valid: false, error: "Invalid NFT type format. Expected format: package::module::type" };
+    }
+
+    return { valid: true };
+}
+
+

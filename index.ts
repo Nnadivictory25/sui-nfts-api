@@ -3,8 +3,8 @@ import { GRAPHQL_ENDPOINT } from "./constants";
 import { getSdk } from "./generated/graphql";
 import { migrateDatabase } from "./db/migrate";
 import { indexNfts } from "./poller";
-import { deleteCollectionByType, getNftById } from "./db/utils";
-import { formatRawNft } from "./utils";
+import { deleteCollectionByType, getNftById, checkNftTypeStatus, addNftTypeToIndex } from "./db/utils";
+import { formatRawNft, validateNftType } from "./utils";
 
 const isDev = process.env.NODE_ENV === "development";
 const port = process.env.PORT || 3232;
@@ -72,6 +72,48 @@ Bun.serve({
                 await deleteCollectionByType(type);
                 return Response.json({ message: "Collection deleted" }, { status: 200 });
             },
+        },
+
+        "/index": {
+            POST: async (req) => {
+                try {
+                    const body = await req.json();
+                    const { nftType } = body;
+
+                    // Validate NFT type format
+                    const validation = validateNftType(nftType);
+                    if (!validation.valid) {
+                        return Response.json({ error: validation.error }, { status: 400 });
+                    }
+
+                    // Check current status
+                    const statusCheck = await checkNftTypeStatus(nftType);
+                    if (statusCheck.status !== 'available') {
+                        return Response.json({
+                            message: statusCheck.message,
+                            status: statusCheck.status,
+                            nftType
+                        }, { status: 200 });
+                    }
+
+                    // Add to index queue
+                    const result = await addNftTypeToIndex(nftType);
+                    if (!result.success) {
+                        return Response.json({ error: result.error }, { status: 500 });
+                    }
+
+                    return Response.json({
+                        message: "NFT type added to indexing queue",
+                        status: "queued",
+                        nftType,
+                        queuePosition: result.queuePosition
+                    }, { status: 201 });
+
+                } catch (error) {
+                    console.error('Error processing index request:', error);
+                    return Response.json({ error: "Internal server error" }, { status: 500 });
+                }
+            }
         },
     },
 });

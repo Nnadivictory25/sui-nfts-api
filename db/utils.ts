@@ -52,3 +52,71 @@ export async function updateRarityScoreInDB(data: RarityScore[]) {
 export async function saveCollectionInDB(collection: NewCollection) {
     await db.insert(collections).values(collection).onConflictDoNothing();
 }
+
+// Index endpoint utilities
+
+export async function checkNftTypeStatus(nftType: string): Promise<{
+    status: 'available' | 'already_indexed' | 'queued' | 'currently_indexing';
+    message: string;
+}> {
+    // Check if already indexed in database
+    const existingCollections = await getCollections();
+    const isAlreadyIndexed = existingCollections.some(c => c.type === nftType);
+
+    if (isAlreadyIndexed) {
+        return {
+            status: 'already_indexed',
+            message: "NFT type is already indexed"
+        };
+    }
+
+    // Read current index data
+    const indexData = await Bun.file('./data/index-data.json').json();
+
+    // Check if already in queue or currently indexing
+    const isInQueue = indexData.to_index.includes(nftType);
+    const isCurrentlyIndexing = indexData.currently_indexing === nftType;
+
+    if (isCurrentlyIndexing) {
+        return {
+            status: 'currently_indexing',
+            message: "NFT type is currently being indexed"
+        };
+    }
+
+    if (isInQueue) {
+        return {
+            status: 'queued',
+            message: "NFT type is already in indexing queue"
+        };
+    }
+
+    return {
+        status: 'available',
+        message: "NFT type is available for indexing"
+    };
+}
+
+export async function addNftTypeToIndex(nftType: string): Promise<{ success: boolean; queuePosition?: number; error?: string }> {
+    try {
+        // Read current index data
+        const indexData = await Bun.file('./data/index-data.json').json();
+
+        // Add to queue
+        indexData.to_index.push(nftType);
+
+        // Write back to file
+        await Bun.write('./data/index-data.json', JSON.stringify(indexData, null, 2));
+
+        return {
+            success: true,
+            queuePosition: indexData.to_index.length
+        };
+    } catch (error) {
+        console.error('Error adding NFT type to index:', error);
+        return {
+            success: false,
+            error: "Failed to add NFT type to indexing queue"
+        };
+    }
+}
