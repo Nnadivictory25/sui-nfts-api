@@ -1,6 +1,5 @@
 {
   "to_index": [
-    "0xe0fa7b75a3dc8137b38bceb0c0c21c10e0f57c408fe9068694f58fd21e071925::pawtato_heroes::HERO",
     "0x71ef69d02e77dff830c7de41db1452928c8ecd9040a541eef6729f139df83ffd::enforcer_machin_prototypes_01::Emp",
     "0x42482d397dd0f1dc8dab9fdf8db9b81a6d4ce9e32597ed522cde660a8773b1a9::pawtato_tools::TOOL",
     "0x7c02d0be6b6dfaeaf8aeebdf0967cb6f0f5c187c86e3b054e27c195bea30c9b5::puggies::Puggies",
@@ -8,6 +7,6 @@
     "0xf75f70c333292e9258ba1c6fc44e6bccfa2bd03bbed6d8e6e343f06f3b22a7f4::suimilios::SUIMILIOS_NFT",
     "0x09afb9a1c63a9bbaba650ef0a6b473b9874882cd63aab9570b99274e8f796f00::pawtato::LAND"
   ],
-  "currently_indexing": "",
-  "last_cursor": "uTVFDQAAAABqA0wWL2tZTLWhgFJk3QHKXYDOPsplIubuN/2ev7nT3coAAAAAAAAAB2ZhY3RvcnkAAAAAAAAAC1ByaW1lTWFjaGluAAAAAAAAAAAWcZnikm/bBaVVhRvMJaIpsryuE1G8I79g2MQaN1Un6Q=="
+  "currently_indexing": "0xe0fa7b75a3dc8137b38bceb0c0c21c10e0f57c408fe9068694f58fd21e071925::pawtato_heroes::HERO",
+  "last_cursor": "QEpFDQAAAABq4Pp7daPcgTezi86wwMIcEOD1fECP6QaGlPWP0h4HGSUAAAAAAAAADnBhd3RhdG9faGVyb2VzAAAAAAAAAARIRVJPAAAAAAAAAAABrghE6EGbkMpLD5LhYaLkaXtmIIuw/Iv2G8UV8+vr4w=="
 }

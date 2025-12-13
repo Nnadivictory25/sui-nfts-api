@@ -7,6 +7,9 @@ import { storeNfts, getCollections } from "./db/utils";
 const gqlClient = new GraphQLClient(GRAPHQL_ENDPOINT);
 const sdk = getSdk(gqlClient);
 
+// Global flag to prevent multiple pollers
+let isPolling = false;
+
 async function cleanupIndexData(indexData: indexData) {
     // Get already indexed collections from the database
     const existingCollections = await getCollections();
@@ -18,6 +21,13 @@ async function cleanupIndexData(indexData: indexData) {
 }
 
 export async function indexNfts() {
+    // Prevent multiple pollers from running simultaneously
+    if (isPolling) {
+        console.log('🔄 Poller already running. Skipping duplicate start.');
+        return;
+    }
+
+    isPolling = true;
     console.log('🔄 Poller started. Checking for indexing tasks...');
 
     async function poll() {
@@ -31,32 +41,32 @@ export async function indexNfts() {
             let totalIndexedThisRun = 0;
             console.log(`▶️ Resuming indexing for: ${indexData.currently_indexing}`);
 
-             while (hasNextPage) {
-                 let startTime = performance.now();
+            while (hasNextPage) {
+                let startTime = performance.now();
 
-                 let objects;
-                 try {
-                     const result = await sdk.GetNftsByType({
-                         nftType: indexData.currently_indexing,
-                         first: 50,
-                         after: indexData.last_cursor ?? undefined,
-                     });
-                     objects = result.objects;
-                 } catch (error: any) {
-                     if (error?.message?.includes('Request is outside consistent range')) {
-                         console.log('⚠️ Cursor is invalid, resetting and starting from beginning...');
-                         indexData.last_cursor = null;
-                         await storeIndexData(indexData);
-                         const result = await sdk.GetNftsByType({
-                             nftType: indexData.currently_indexing,
-                             first: 50,
-                             after: undefined,
-                         });
-                         objects = result.objects;
-                     } else {
-                         throw error;
-                     }
-                 }
+                let objects;
+                try {
+                    const result = await sdk.GetNftsByType({
+                        nftType: indexData.currently_indexing,
+                        first: 50,
+                        after: indexData.last_cursor ?? undefined,
+                    });
+                    objects = result.objects;
+                } catch (error: any) {
+                    if (error?.message?.includes('Request is outside consistent range')) {
+                        console.log('⚠️ Cursor is invalid, resetting and starting from beginning...');
+                        indexData.last_cursor = null;
+                        await storeIndexData(indexData);
+                        const result = await sdk.GetNftsByType({
+                            nftType: indexData.currently_indexing,
+                            first: 50,
+                            after: undefined,
+                        });
+                        objects = result.objects;
+                    } else {
+                        throw error;
+                    }
+                }
 
                 if (!objects?.nodes) {
                     console.error("❌ No objects found for type", indexData.currently_indexing);
@@ -139,12 +149,12 @@ export async function indexNfts() {
             setTimeout(poll, 5000); // Check again almost immediately
         } else {
             console.log('🎯 All indexing tasks completed. Poller stopped.');
+            isPolling = false; // Reset flag when poller goes idle
         }
     }
 
     poll();
 }
-
 
 async function storeIndexData(data: indexData) {
     try {

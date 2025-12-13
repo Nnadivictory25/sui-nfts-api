@@ -102,6 +102,9 @@ Bun.serve({
                         return Response.json({ error: result.error }, { status: 500 });
                     }
 
+                    // Trigger the poller to start processing the queue
+                    indexNfts();
+
                     return Response.json({
                         message: "NFT type added to indexing queue",
                         status: "queued",
