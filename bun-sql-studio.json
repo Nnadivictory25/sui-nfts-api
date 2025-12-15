@@ -1,0 +1,5 @@
+{
+  "dialect": "sqlite",
+  "dbUrl": "/data/nfts.db",
+  "port": 4987
+}
