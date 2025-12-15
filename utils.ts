@@ -66,6 +66,9 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
         } else if (attributeSource.map && attributeSource.map.contents && Array.isArray(attributeSource.map.contents)) {
             // Nested in map.contents
             attributes = attributeSource.map.contents;
+        } else if (attributeSource.fields && attributeSource.fields.contents && Array.isArray(attributeSource.fields.contents)) {
+            // VecMap structure with fields.fields.contents
+            attributes = attributeSource.fields.contents;
         } else if (attributeSource.data && typeof attributeSource.data === 'object') {
             // Handle case where attributes are in a data object (like Prime Machin NFTs)
             const dataObj = attributeSource.data;
