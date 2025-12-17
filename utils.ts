@@ -59,14 +59,9 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
 
         // Check if metadataFields is an object with trait attributes
         if (typeof metadataFields === 'object' && metadataFields !== null) {
-            // Convert metadata fields to attribute array format
+            // Convert all metadata fields to attribute array format (no filtering)
             attributeSource = Object.entries(metadataFields)
-                .filter(([key, value]) => {
-                    // Only include string key-value pairs that look like traits
-                    return typeof key === 'string' && typeof value === 'string' &&
-                           key.length > 0 && value.length > 0 &&
-                           !['type', 'id', 'owner', 'name', 'description'].includes(key.toLowerCase());
-                })
+                .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
                 .map(([key, value]) => ({ key, value }));
 
             console.log(`[NFT PARSE] Extracted ${attributeSource.length} attributes from metadata.fields for ${addr}`);
