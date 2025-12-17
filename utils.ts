@@ -53,26 +53,23 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     let attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
 
     // Handle metadata fields structure (e.g., mf_squid_maiden)
-    if (!attributeSource) {
-        // Check if NFT json has fields directly (standalone metadata structure)
-        if (nftJson?.fields && typeof nftJson.fields === 'object') {
-            const fields = nftJson.fields;
-            // Convert fields to attribute array format, excluding non-attribute fields
-            attributeSource = Object.entries(fields)
-                .filter(([key, value]) => {
-                    // Skip fields that are not string attributes (like "type", "id", etc.)
-                    return typeof key === 'string' && typeof value === 'string' &&
-                           !['type', 'id', 'owner'].includes(key.toLowerCase());
-                })
-                .map(([key, value]) => ({ key, value }));
-        }
-        // Check for nested metadata.fields structure
-        else if (nftJson?.metadata?.fields) {
-            const metadataFields = nftJson.metadata.fields;
+    if (!attributeSource && nftJson?.metadata?.fields) {
+        const metadataFields = nftJson.metadata.fields;
+        console.log(`[NFT PARSE] Found metadata.fields for ${addr}:`, metadataFields);
+
+        // Check if metadataFields is an object with trait attributes
+        if (typeof metadataFields === 'object' && metadataFields !== null) {
             // Convert metadata fields to attribute array format
             attributeSource = Object.entries(metadataFields)
-                .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
+                .filter(([key, value]) => {
+                    // Only include string key-value pairs that look like traits
+                    return typeof key === 'string' && typeof value === 'string' &&
+                           key.length > 0 && value.length > 0 &&
+                           !['type', 'id', 'owner', 'name', 'description'].includes(key.toLowerCase());
+                })
                 .map(([key, value]) => ({ key, value }));
+
+            console.log(`[NFT PARSE] Extracted ${attributeSource.length} attributes from metadata.fields for ${addr}`);
         }
     }
 
