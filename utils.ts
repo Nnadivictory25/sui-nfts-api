@@ -15,10 +15,6 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     const nftJson = nftNode?.asMoveObject?.contents?.json;
     const displayOutput = nftNode?.asMoveObject?.contents?.display?.output;
 
-    console.log(`[NFT PARSE] Processing NFT ${addr}, collection: ${collectionType}`);
-    console.log(`[NFT PARSE] nftJson:`, JSON.stringify(nftJson, null, 2));
-    console.log(`[NFT PARSE] displayOutput:`, JSON.stringify(displayOutput, null, 2));
-
     if (!nftJson && !displayOutput) {
         console.warn(`[NFT PARSE] Missing json and display data for ${addr}`);
         return null;
@@ -59,7 +55,6 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     // Handle metadata object with traits (e.g., mf_squid_maiden)
     if (!attributeSource && nftJson?.metadata) {
         const metadata = nftJson.metadata;
-        console.log(`[NFT PARSE] Found metadata object for ${addr}:`, metadata);
 
         // Check if metadata is an object with trait attributes
         if (typeof metadata === 'object' && metadata !== null) {
@@ -67,8 +62,6 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
             attributeSource = Object.entries(metadata)
                 .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
                 .map(([key, value]) => ({ key, value }));
-
-            console.log(`[NFT PARSE] Extracted ${attributeSource.length} attributes from metadata for ${addr}:`, attributeSource);
         }
     }
 
