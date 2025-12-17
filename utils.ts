@@ -20,7 +20,6 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
         return null;
     }
 
-    // For Prime Machin NFTs, the name and image_url are in display.output, not json
     let name: string | undefined;
     let imageUrl: string | undefined;
 
@@ -54,12 +53,27 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     let attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
 
     // Handle metadata fields structure (e.g., mf_squid_maiden)
-    if (!attributeSource && nftJson?.metadata?.fields) {
-        const metadataFields = nftJson.metadata.fields;
-        // Convert metadata fields to attribute array format
-        attributeSource = Object.entries(metadataFields)
-            .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
-            .map(([key, value]) => ({ key, value }));
+    if (!attributeSource) {
+        // Check if NFT json has fields directly (standalone metadata structure)
+        if (nftJson?.fields && typeof nftJson.fields === 'object') {
+            const fields = nftJson.fields;
+            // Convert fields to attribute array format, excluding non-attribute fields
+            attributeSource = Object.entries(fields)
+                .filter(([key, value]) => {
+                    // Skip fields that are not string attributes (like "type", "id", etc.)
+                    return typeof key === 'string' && typeof value === 'string' &&
+                           !['type', 'id', 'owner'].includes(key.toLowerCase());
+                })
+                .map(([key, value]) => ({ key, value }));
+        }
+        // Check for nested metadata.fields structure
+        else if (nftJson?.metadata?.fields) {
+            const metadataFields = nftJson.metadata.fields;
+            // Convert metadata fields to attribute array format
+            attributeSource = Object.entries(metadataFields)
+                .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
+                .map(([key, value]) => ({ key, value }));
+        }
     }
 
     if (attributeSource) {
