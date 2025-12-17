@@ -56,7 +56,23 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     // Handle different possible attribute structures
     let attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
 
-    // Handle metadata fields structure (e.g., mf_squid_maiden)
+    // Handle display output with mixed metadata/traits (e.g., mf_squid_maiden)
+    if (!attributeSource && displayOutput) {
+        console.log(`[NFT PARSE] Checking displayOutput for traits in ${addr}`);
+
+        // Extract traits from display output, excluding known metadata fields
+        const metadataFields = ['collection', 'creator', 'description', 'id', 'image_url', 'name', 'project_url'];
+        attributeSource = Object.entries(displayOutput)
+            .filter(([key, value]) => {
+                return typeof key === 'string' && typeof value === 'string' &&
+                       !metadataFields.includes(key.toLowerCase());
+            })
+            .map(([key, value]) => ({ key, value }));
+
+        console.log(`[NFT PARSE] Extracted ${attributeSource.length} attributes from displayOutput for ${addr}:`, attributeSource);
+    }
+
+    // Fallback: Handle metadata fields structure
     if (!attributeSource && nftJson?.metadata?.fields) {
         const metadataFields = nftJson.metadata.fields;
         console.log(`[NFT PARSE] Found metadata.fields for ${addr}:`, metadataFields);
