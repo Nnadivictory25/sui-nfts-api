@@ -15,6 +15,10 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     const nftJson = nftNode?.asMoveObject?.contents?.json;
     const displayOutput = nftNode?.asMoveObject?.contents?.display?.output;
 
+    console.log(`[NFT PARSE] Processing NFT ${addr}, collection: ${collectionType}`);
+    console.log(`[NFT PARSE] nftJson:`, JSON.stringify(nftJson, null, 2));
+    console.log(`[NFT PARSE] displayOutput:`, JSON.stringify(displayOutput, null, 2));
+
     if (!nftJson && !displayOutput) {
         console.warn(`[NFT PARSE] Missing json and display data for ${addr}`);
         return null;
