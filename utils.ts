@@ -51,7 +51,16 @@ export function formatRawNft({ nftNode, collectionType }: { nftNode: NftNode, co
     let attributes: any[] = [];
 
     // Handle different possible attribute structures
-    const attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
+    let attributeSource = nftJson?.collectible?.attributes || nftJson?.attributes;
+
+    // Handle metadata fields structure (e.g., mf_squid_maiden)
+    if (!attributeSource && nftJson?.metadata?.fields) {
+        const metadataFields = nftJson.metadata.fields;
+        // Convert metadata fields to attribute array format
+        attributeSource = Object.entries(metadataFields)
+            .filter(([key, value]) => typeof key === 'string' && typeof value === 'string')
+            .map(([key, value]) => ({ key, value }));
+    }
 
     if (attributeSource) {
         if (Array.isArray(attributeSource)) {
